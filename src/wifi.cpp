@@ -10,9 +10,9 @@
 #include "input.h"
 
 // Имя Wi‑Fi сети, к которой подключается устройство.
-const char* ssid = "фиви";
+char ssid[64] = "";
 // Пароль от Wi‑Fi сети.
-const char* pass = "12345678";
+char pass[64] = "12345678";
 
 // Объект для отправки и приёма UDP-пакетов.
 WiFiUDP udp;
@@ -28,17 +28,24 @@ bool connected = false;
 // Флаг: Wi‑Fi уже подключён, UDP уже запущен.
 bool wifiReady = false;
 
+int networksCount = 0;
+
+String ssids[20];
+
 // Время последней отправки состояния на ПК.
 unsigned long lastSend = 0;
 
-// Запускаем подключение к беспроводной сети.
-void initWiFi() {
+void scanWIFI() {
   // Режим станции: устройство подключается к роутеру, а не создаёт свою сеть.
   WiFi.mode(WIFI_STA);
-  // Начинаем подключение по имени сети и паролю.
-  WiFi.begin(ssid, pass);
-  // Пишем статус в Serial для отладки.
-  Serial.println("\nConnecting...");
+  WiFi.disconnect();
+  delay(100);
+
+  networksCount = WiFi.scanNetworks();
+
+  for (int i = 0; i < networksCount && i < 20; i++) {
+    ssids[i] = WiFi.SSID(i);
+  }
 }
 
 // Обрабатываем подключение, поиск ПК и отправку состояния геймпада.
@@ -47,8 +54,15 @@ void handleWiFi() {
   if (!wifiReady) {
     // Если к роутеру ещё не подключились, пока ничего не делаем.
     if (WiFi.status() != WL_CONNECTED) {
+      WiFi.begin(ssid, pass);
+      // Пишем статус в Serial для отладки.
+      Serial.println("\nConnecting...");
+      Serial.println(ssid);
+      Serial.println(pass);
+      delay(500);
       return;
     }
+    Serial.println("\nConnected");
 
     // Получаем локальный IP устройства.
     IPAddress ip = WiFi.localIP();

@@ -23,9 +23,11 @@
 Adafruit_SSD1306 display(128, 64, &Wire, -1);
 
 // Текущий активный экран интерфейса.
-Screen currentScreen = STARTUP_SCREEN;
+Screen currentScreen = WIFI_SCAN;
 // Индекс выбранного пункта меню.
 int menuIndex = 0;
+
+int selected = 0;
 
 // Первичная настройка дисплея и I2C.
 void initUI() {
@@ -47,8 +49,30 @@ void setScreen(Screen s) {
   currentScreen = s;
 }
 
-// Рисуем стартовый экран подключения.
+void drawWiFiList() {
+  display.clearDisplay();
 
+  for (int i = 0; i < networksCount && i < 20; i++) {
+    if (i == selected) {
+      display.setTextColor(BLACK, WHITE); // выделение
+    } 
+    else {
+      display.setTextColor(WHITE);
+    }
+
+    if (btn) {
+      strcpy(ssid, ssids[i].c_str());
+      setScreen(STARTUP_SCREEN);
+    }
+
+    display.setCursor(0, i * 10);
+    display.println(ssids[i]);
+  }
+
+  display.display();
+}
+
+// Рисуем стартовый экран подключения.
 void drawStartup() {
   // Очищаем буфер перед новой отрисовкой.
   display.clearDisplay();
@@ -76,7 +100,7 @@ void drawStartup() {
 }
 
 // Рисуем главный экран после успешного подключения.
-void drawMain() {
+void  drawMain() {
   // Очищаем экран перед новой картинкой.
   display.clearDisplay();
 
@@ -136,6 +160,16 @@ void drawUI() {
   // Момент, когда соединение стало активным.
   static unsigned long connectedAt = 0;
 
+  if (currentScreen == WIFI_SCAN) {
+    if (btn2) selected--;
+    if (btn3) selected++;
+
+    if (selected < 0) selected = 0;
+    if (selected >= networksCount) selected = networksCount - 1;
+
+    delay(150);
+  }
+
   // Логика стартового экрана.
   if (currentScreen == STARTUP_SCREEN) {
     // Если ПК уже найден, начинаем отсчёт до перехода дальше.
@@ -180,7 +214,7 @@ void drawUI() {
   }
 
   // Обработка кнопки выбора.
-  if (btn4) {
+  if (btn) {
     // На главном экране кнопка открывает меню.
     if (currentScreen == MAIN_SCREEN) {
       setScreen(MENU_SCREEN);
@@ -200,6 +234,7 @@ void drawUI() {
 
   // Вызываем функцию рисования того экрана, который активен сейчас.
   switch (currentScreen) {
+    case WIFI_SCAN: drawWiFiList(); break;
     // Рисуем стартовый экран.
     case STARTUP_SCREEN: drawStartup(); break;
     // Рисуем главный экран.

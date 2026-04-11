@@ -55,17 +55,20 @@ void drawStartup() {
   // Ставим курсор в левый верхний угол.
   display.setCursor(0, 0);
 
-  // Если соединение с ПК уже установлено, показываем это.
-  if (connected) {
-    display.println(F("Connected!"));
-  } else {
-    // Иначе сообщаем, что идёт подключение.
-    display.println(F("Connecting..."));
-    // Если к Wi‑Fi уже подключились, но ПК ещё не найден,
-    // значит ждём подтверждение от компьютера.
-    if (WiFi.status() == WL_CONNECTED) {
-      display.println(F("Waiting for PC..."));
-    }
+  // Проверка на подключение
+  if (WiFi.status() != WL_CONNECTED) {
+  // Этап 1: Нет даже интернета
+  display.println(F("WiFi: Connecting..."));
+  } 
+  else if (!connected) {
+    // Этап 2: Wi-Fi есть, но ПК нас еще не "увидел"
+    display.println(F("WiFi: OK!"));
+    display.println(F("Waiting for PC..."));
+  } 
+  else {
+    // Этап 3: Полный контакт
+    display.println(F("System: Online"));
+    display.println(F("Connected to PC!"));
   }
 
   // Выводим подготовленный кадр на экран.
@@ -143,7 +146,8 @@ void drawUI() {
       if (millis() - connectedAt > 1000) {
         setScreen(MENU_SCREEN);
       }
-    } else {
+    } 
+    else {
       // Если соединение пропало, сбрасываем таймер ожидания.
       connectedAt = 0;
     }

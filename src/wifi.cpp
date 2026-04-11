@@ -50,9 +50,6 @@ void handleWiFi() {
       return;
     }
 
-    // Сообщаем, что подключение к Wi‑Fi успешно.
-    Serial.println("Connected!");
-
     // Получаем локальный IP устройства.
     IPAddress ip = WiFi.localIP();
     // Получаем маску подсети.
@@ -96,8 +93,6 @@ void handleWiFi() {
         pcIP = udp.remoteIP();
         // Подтверждаем, что discovery завершён.
         connected = true;
-        // Пишем сообщение в Serial Monitor.
-        Serial.println("Connected to PC!");
       }
     }
     // Пока discovery не завершён, выходим и не отправляем данные управления.

@@ -66,7 +66,6 @@ def main():
         except:
             continue
 
-        # --- ускорение ---
         dx = process_axis(x)
         dy = process_axis(y)
 

@@ -15,13 +15,13 @@ int x = 0;
 // Текущее значение оси Y.
 int y = 0;
 // Состояние первой кнопки.
-int btn = 0;
+Button btn1 = {0, 0, 0};
 // Состояние второй кнопки.
-int btn2 = 0;
+Button btn2 = {0, 0, 0};
 // Состояние третьей кнопки.
-int btn3 = 0;
+Button btn3 = {0, 0, 0};
 // Состояние четвёртой кнопки.
-int btn4 = 0;
+Button btn4 = {0, 0, 0};
 
 // Буфер для накопления входящей строки вида "123,456,1,0,1,0".
 char buffer[32];
@@ -30,6 +30,32 @@ int bufIndex = 0;
 
 // Объявляем функцию заранее, потому что она описана ниже по файлу.
 void parseData(char* data);
+
+// Обновляем состояние кнопки и отмечаем момент изменения.
+void updateButton(Button& button, bool state) {
+  if (button.current != state) {
+    button.last = button.current;
+    button.current = state;
+    button.lastChangeTime = millis();
+  }
+}
+
+bool isPressed(Button &b) {
+  return b.current == 1;
+}
+
+bool wasPressed(Button &b) {
+  if (b.current == 1 && b.last == 0) {
+    if (millis() - b.lastChangeTime > 50) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool wasReleased(Button &b) {
+  return b.current == 0 && b.last == 1;
+}
 
 // Инициализация входного последовательного соединения.
 void initInput() {
@@ -67,17 +93,21 @@ void handleInput() {
 // чтобы снизить расход памяти и избежать фрагментации кучи на микроконтроллере.
 void parseData(char* data) {
   // Из строки формата "x,y,btn,btn2,btn3,btn4"
-  // читаем шесть целых чисел в соответствующие переменные.
+  // читаем шесть целых чисел во временные переменные.
+  int rawBtn1 = 0;
+  int rawBtn2 = 0;
+  int rawBtn3 = 0;
+  int rawBtn4 = 0;
   sscanf(data, "%d,%d,%d,%d,%d,%d",
-         &x, &y, &btn, &btn2, &btn3, &btn4);
+         &x, &y, &rawBtn1, &rawBtn2, &rawBtn3, &rawBtn4);
 
   // Инвертируем значения кнопок.
   // Это полезно, если кнопки подключены по схеме, где нажатие даёт 0, а отпускание 1.
-  btn  = !btn;
+  updateButton(btn1, !rawBtn1);
   // То же самое для второй кнопки.
-  btn2 = !btn2;
+  updateButton(btn2, !rawBtn2);
   // То же самое для третьей кнопки.
-  btn3 = !btn3;
+  updateButton(btn3, !rawBtn3);
   // То же самое для четвёртой кнопки.
-  btn4 = !btn4;
+  updateButton(btn4, !rawBtn4);
 }

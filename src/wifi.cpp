@@ -58,14 +58,12 @@ void handleWiFi() {
     if (wifiStarted) {
       WiFi.begin(ssid, pass);
       // Пишем статус в Serial для отладки.
-      Serial.println("\nConnecting...");
       wifiStarted = false;
 
     }
     if (WiFi.status() != WL_CONNECTED) {
       return;
     }
-    Serial.println("\nConnected");
 
     // Получаем локальный IP устройства.
     IPAddress ip = WiFi.localIP();
@@ -122,7 +120,9 @@ void handleWiFi() {
     // Буфер для строки вида "x,y,btn,btn2,btn3,btn4".
     char msg[64];
     // Собираем текущие значения в текстовый пакет.
-    sprintf(msg, "%d,%d,%d,%d,%d,%d", x, y, btn, btn2, btn3, btn4);
+    sprintf(msg, "%d,%d,%d,%d,%d,%d",
+            x, y,
+            btn1.current, btn2.current, btn3.current, btn4.current);
 
     // Отправляем пакет на IP компьютера и заданный UDP-порт.
     udp.beginPacket(pcIP, PORT);

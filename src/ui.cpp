@@ -156,13 +156,21 @@ void drawUI() {
   static unsigned long connectedAt = 0;
 
   if (currentScreen == WIFI_SCAN) {
-    if (btn2) selected--;
-    if (btn3) selected++;
+    if (btn2.current) selected--;
+    if (btn3.current) selected++;
 
     if (selected < 0) selected = 0;
     if (selected >= networksCount) selected = networksCount - 1;
 
-    delay(150);
+    
+    if (wasPressed(btn4)) {
+      strcpy(ssid, ssids[selected].c_str());
+      setScreen(STARTUP_SCREEN);
+      WiFi.disconnect();
+      wifiStarted = true;
+    }
+
+    delay(100);
   }
 
   // Логика стартового экрана.
@@ -208,16 +216,6 @@ void drawUI() {
     }
   }
   
-
-  if (btn) {
-    strcpy(ssid, ssids[selected].c_str());
-    setScreen(STARTUP_SCREEN);
-    WiFi.disconnect();
-
-    wifiStarted = true;
-
-    setScreen(STARTUP_SCREEN);
-  }
 
 
   // Вызываем функцию рисования того экрана, который активен сейчас.

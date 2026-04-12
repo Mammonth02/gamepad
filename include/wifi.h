@@ -6,6 +6,9 @@
 // Глобальный флаг успешного соединения с ПК.
 extern bool connected;
 
+extern bool wifiStarted;
+
+
 extern int networksCount;
 
 extern String ssids[20];

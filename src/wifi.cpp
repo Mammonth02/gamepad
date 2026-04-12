@@ -28,6 +28,8 @@ bool connected = false;
 // Флаг: Wi‑Fi уже подключён, UDP уже запущен.
 bool wifiReady = false;
 
+bool wifiStarted = false;
+
 int networksCount = 0;
 
 String ssids[20];
@@ -53,13 +55,14 @@ void handleWiFi() {
   // Этот блок выполняется до тех пор, пока не будет готово само Wi‑Fi соединение.
   if (!wifiReady) {
     // Если к роутеру ещё не подключились, пока ничего не делаем.
-    if (WiFi.status() != WL_CONNECTED) {
+    if (wifiStarted) {
       WiFi.begin(ssid, pass);
       // Пишем статус в Serial для отладки.
       Serial.println("\nConnecting...");
-      Serial.println(ssid);
-      Serial.println(pass);
-      delay(500);
+      wifiStarted = false;
+
+    }
+    if (WiFi.status() != WL_CONNECTED) {
       return;
     }
     Serial.println("\nConnected");

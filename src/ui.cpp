@@ -60,11 +60,6 @@ void drawWiFiList() {
       display.setTextColor(WHITE);
     }
 
-    if (btn) {
-      strcpy(ssid, ssids[i].c_str());
-      setScreen(STARTUP_SCREEN);
-    }
-
     display.setCursor(0, i * 10);
     display.println(ssids[i]);
   }
@@ -212,25 +207,18 @@ void drawUI() {
       }
     }
   }
+  
 
-  // Обработка кнопки выбора.
   if (btn) {
-    // На главном экране кнопка открывает меню.
-    if (currentScreen == MAIN_SCREEN) {
-      setScreen(MENU_SCREEN);
-      // Небольшая задержка, чтобы одно нажатие не обработалось несколько раз подряд.
-      delay(200);
-    }
-    // На экране меню кнопка выбирает текущий пункт.
-    else if (currentScreen == MENU_SCREEN) {
-      // Если выбран пункт Back, возвращаемся на главный экран.
-      if (menuIndex == 1) {
-        setScreen(MAIN_SCREEN);
-      }
-      // Та же простая антидребезговая задержка.
-      delay(200);
-    }
+    strcpy(ssid, ssids[selected].c_str());
+    setScreen(STARTUP_SCREEN);
+    WiFi.disconnect();
+
+    wifiStarted = true;
+
+    setScreen(STARTUP_SCREEN);
   }
+
 
   // Вызываем функцию рисования того экрана, который активен сейчас.
   switch (currentScreen) {

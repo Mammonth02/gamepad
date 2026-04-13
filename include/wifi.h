@@ -5,6 +5,7 @@
 
 // Глобальный флаг успешного соединения с ПК.
 extern bool connected;
+extern bool wifiReady;
 
 extern bool wifiStarted;
 

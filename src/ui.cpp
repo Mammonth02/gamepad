@@ -31,6 +31,25 @@ int selected = 0;
 
 bool menuMode = false;
 
+// Время последнего перемещения по меню.
+static unsigned long lastMove = 0;
+
+bool joy(int jx, bool j) {
+  if (millis() - lastMove > 200) {
+
+    if (jx > 800 && j) {
+      lastMove = millis();
+      return true;
+    }
+    else if (jx < 200 && !j) {
+      lastMove = millis();
+      return true;
+    }
+    else return false;
+  }
+  else return false;
+}
+
 // Первичная настройка дисплея и I2C.
 void initUI() {
   // Запускаем I2C на пинах D2 (SDA) и D1 (SCL).
@@ -90,6 +109,7 @@ void drawStartup() {
     // Этап 3: Полный контакт
     display.println(F("System: Online"));
     display.println(F("Connected to PC!"));
+    menuMode = false;
   }
 
   // Выводим подготовленный кадр на экран.
@@ -152,14 +172,12 @@ void drawMenu() {
 // Главная функция обновления интерфейса и обработки управления меню.
 
 void drawUI() {
-  // Время последнего перемещения по меню.
-  static unsigned long lastMove = 0;
   // Момент, когда соединение стало активным.
   static unsigned long connectedAt = 0;
 
   if (currentScreen == WIFI_SCAN) {
-    if (y > 800) selected--;
-    if (y < 200) selected++;
+    if (joy(y, false)) selected--;
+    if (joy(y, true)) selected++;
 
     if (selected < 0) selected = 0;
     if (selected >= networksCount) selected = networksCount - 1;
@@ -195,24 +213,29 @@ void drawUI() {
     // Ограничиваем частоту перемещения, чтобы меню не "улетало" слишком быстро.
     if (millis() - lastMove > 200) {
       // Большое значение Y считаем движением вниз.
-      if (y > 800) {
+      if (joy(y, true)) {
         // Переходим к следующему пункту.
         menuIndex++;
         // Если вышли за последний пункт, возвращаемся к первому.
         if (menuIndex > 1) menuIndex = 0;
-        // Запоминаем время этого перемещения.
-        lastMove = millis();
       }
 
       // Малое значение Y считаем движением вверх.
-      if (y < 200) {
+      if (joy(y, false)) {
         // Переходим к предыдущему пункту.
         menuIndex--;
         // Если ушли выше первого пункта, переходим на последний.
         if (menuIndex < 0) menuIndex = 1;
-        // Запоминаем время этого перемещения.
-        lastMove = millis();
       }
+
+    }
+      if (wasPressed(btn4)) {
+        if (menuIndex == 0) {
+          connected = false;
+          wifiReady = false;
+          scanWIFI();
+          setScreen(WIFI_SCAN);
+        }
     }
   }
 

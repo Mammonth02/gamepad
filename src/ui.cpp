@@ -29,6 +29,8 @@ int menuIndex = 0;
 
 int selected = 0;
 
+bool menuMode = false;
+
 // Первичная настройка дисплея и I2C.
 void initUI() {
   // Запускаем I2C на пинах D2 (SDA) и D1 (SCL).
@@ -156,8 +158,8 @@ void drawUI() {
   static unsigned long connectedAt = 0;
 
   if (currentScreen == WIFI_SCAN) {
-    if (btn2.current) selected--;
-    if (btn3.current) selected++;
+    if (y > 800) selected--;
+    if (y < 200) selected++;
 
     if (selected < 0) selected = 0;
     if (selected >= networksCount) selected = networksCount - 1;
@@ -169,8 +171,6 @@ void drawUI() {
       WiFi.disconnect();
       wifiStarted = true;
     }
-
-    delay(100);
   }
 
   // Логика стартового экрана.
@@ -181,7 +181,7 @@ void drawUI() {
       if (connectedAt == 0) connectedAt = millis();
       // Через секунду после подключения переходим в меню.
       if (millis() - connectedAt > 1000) {
-        setScreen(MENU_SCREEN);
+        setScreen(MAIN_SCREEN);
       }
     } 
     else {
@@ -215,6 +215,14 @@ void drawUI() {
       }
     }
   }
+
+ 
+  if (wasPressed(btn1)) {
+    menuMode = !menuMode;
+    if (menuMode) setScreen(MENU_SCREEN);
+    else setScreen(MAIN_SCREEN);
+  }
+
   
 
 

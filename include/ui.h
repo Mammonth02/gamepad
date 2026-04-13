@@ -14,6 +14,8 @@ enum Screen {
   MENU_SCREEN
 };
 
+extern bool menuMode;
+
 // Инициализация дисплея и интерфейса.
 void initUI();
 // Отрисовка текущего состояния интерфейса.
